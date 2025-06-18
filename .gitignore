@@ -1,0 +1,12 @@
+# Ignore les fichiers de l'environnement virtuel
+.venv/
+
+# Ignore les variables d'environnement
+.env
+
+# Fichiers temporaires de Python
+__pycache__/
+*.pyc
+
+# VS Code settings (facultatif mais courant)
+.vscode/
