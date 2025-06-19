@@ -1,4 +1,4 @@
-# 🎙️ Voice Assistant with Ollama and LLaMA 3.2
+# 🎙️ Voice Assistant with Livekit 
 
 It was initially set up to use [Ollama](https://ollama.com/) running entirely on my machine with the LLaMA 3.2 model locally, but now uses OpenAI's API instead.
 
