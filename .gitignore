@@ -8,5 +8,5 @@
 __pycache__/
 *.pyc
 
-# VS Code settings (facultatif mais courant)
+# VS Code settings 
 .vscode/
