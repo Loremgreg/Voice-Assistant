@@ -52,26 +52,3 @@ async def entrypoint(ctx: JobContext):
 # Lancement de l’agent vocal (uniquement si le script est exécuté directement)
 if __name__ == "__main__":
     cli.run_app(WorkerOptions(entrypoint_fnc=entrypoint))  #cli est l’outil de commande LiveKit importé plus haut | run_app(...) est la fonction qui démarre l agent vocal | WorkerOptions(entrypoint_fnc=entrypoint):Voici les options de configuration pour mon agent, et la fonction d’entrée à exécuter c’est entrypoint »
-'''
-    model = openai.realtime.RealtimeModel(
-        instructions=INSTRUCTIONS,
-        voice="echo",
-        temperature=0.8,
-        modalities=["audio", "text"]
-    )
-'''
-    '''assistant_fnc  = AssistantFnc()
-    assistant = MultimodalAgent(model=model, fnc_ctx=assistant_fnc)      #assistant :on crée un agent, il va utiliser un model, lui donner des outils dans la classe AssistantFnc
-    assistant.start(ctx.room)                                        #on connecte l'assistant à une room -> await ctx.wait_for_participant()
-        #add chat message:
-    session = model.session[0]            #on dit a l'assistant ce qu'il fait dans la room : parler avec le user. On prend la 1ere session [0] 
-    session.conversation.item.create(                              #create a new conversation item
-        llm.chatMessage(                               #create a new llm chat:
-            role="assistant",                                            #son role sera assistant
-            content=WELCOME_MESSAGE
-        )
-    )'''
-    '''    #repondre au message:
-    session.response.create()'''
-                                                #Jusqu'a mtn on a créé un functionning AI assistant, mtn il faut appelé cette entrypoint function:
-        
