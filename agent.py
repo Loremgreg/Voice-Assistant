@@ -11,8 +11,8 @@ from livekit.agents import (         # Importe les modules de base de LiveKit po
     RoomInputOptions,
 )
 
-from livekit.plugins import openai, silero, elevenlabs, deepgram, noise_cancellation
-from livekit.plugins.turn_detector.multilingual import MultilingualModel
+from livekit.plugins import openai                   # ajouter ceux ci plus tard si besoin: silero, elevenlabs, deepgram, noise_cancellation
+                                                            # from livekit.plugins.turn_detector.multilingual import MultilingualModel
 from dotenv import load_dotenv                                          # Permet de charger les variables d’environnement depuis un fichier `.env`
 #from api import AssistantFnc                                            # Module perso : fonctions utiles à ton assistant (à définir dans api.py)
 from prompts import WELCOME_MESSAGE, INSTRUCTIONS    # Messages prédéfinis dans un fichier prompts.py
@@ -29,22 +29,21 @@ async def entrypoint(ctx: JobContext):
     await ctx.connect(auto_subscribe=AutoSubscribe.SUBSCRIBE_ALL)        # Se connecte et s’abonne à tous les flux disponibles (ex. audio)     # Se connecte à la salle LiveKit
     # Crée la session avec tous les modules nécessaires
     session = AgentSession(
-        stt=deepgram.STT(),                         # Reconnaissance vocale (Deepgram, à adapter)
+                                                                         # stt=deepgram.STT(),                         # Reconnaissance vocale (Deepgram, à adapter)
         llm=openai.realtime.RealtimeModel(
             voice="echo",
             temperature=0.7,
-            instructions=INSTRUCTIONS, 
         ),
-        tts=elevenlabs.TTS(),                       # Synthèse vocale (ElevenLabs ici)
-        vad=silero.VAD.load(),                      # Détection de voix (Silero)
-        turn_detection=MultilingualModel(),          # Pour la gestion des tours de parole
+                                                                     # tts=elevenlabs.TTS(),                       # Synthèse vocale (ElevenLabs ici)
+       # vad=silero.VAD.load(),                      # Détection de voix (Silero)
+       # turn_detection=MultilingualModel(),          # Pour la gestion des tours de parole dans plusieurs langues
     )
     await session.start(
         room=ctx.room,                              # Rejoint la room actuelle
         agent=Assistant(),                          # Utilise ton agent personnalisé
         room_input_options=RoomInputOptions(
-            noise_cancellation=noise_cancellation.BVC(),  # Annulation de bruit
-        ),
+     #       noise_cancellation=noise_cancellation.BVC(),  # Annulation de bruit
+        )
     )
     # Fait parler l’agent dès le début
     await session.generate_reply(instructions=WELCOME_MESSAGE)
