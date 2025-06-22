@@ -1,52 +1,63 @@
 from livekit.agents import (
     AgentSession,
     Agent,
-    llm,
     RoomInputOptions
 )
 from livekit.plugins import (
     elevenlabs,
     deepgram,
-    google,
     openai,
     silero,
     noise_cancellation,
 )
+from livekit import agents
+
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 
-from prompts import WELCOME_MESSAGE, INSTRUCTIONS    # Messages prédéfinis dans un fichier prompts.py
-from dotenv import load_dotenv                                          # Permet de charger les variables d’environnement depuis un fichier `.env`
+from prompts import INSTRUCTIONS   
+from dotenv import load_dotenv            
 
 load_dotenv()
 
 class Assistant(Agent):
     def __init__(self) -> None:
-        super().__init__(instructions="You are a helpful voice AI assistant.")
-
+        super().__init__(instructions=INSTRUCTIONS)
 
 
 async def entrypoint(ctx: agents.JobContext):
-    await ctx.connect()
-
     session = AgentSession(
-        stt=deepgram.STT(),
-        llm=openai.realtime.RealtimeModel(
-            voice="echo"
-            temperature=0.7
+        stt=deepgram.STT(model="nova-3", language="multi"),
+        llm=openai.LLM(model="gpt-4o-mini"),
+        tts=elevenlabs.TTS(
+            voice_id="FpvROcY4IGWevepmBWO2", 
+            model="eleven_flash_v2_5",
+            language="fr",
         ),
-        tts=elevenlabs.TTS(),
         vad=silero.VAD.load(),
         turn_detection=MultilingualModel(),
     )
    
 
+
     await session.start(
         room=ctx.room,
         agent=Assistant(),
         room_input_options=RoomInputOptions(
-            noise_cancellation=noise_cancellation.BVC(),
+            # LiveKit Cloud enhanced noise cancellation
+            # - If self-hosting, omit this parameter
+            # - For telephony applications, use `BVCTelephony` for best results
+            noise_cancellation=noise_cancellation.BVC(), 
         ),
     )
+    
+    await ctx.connect()
 
-    # Instruct the agent to speak first
-    await session.generate_reply(instructions=INSTRUCTION)
+    # Speak the predefined welcome message, then listen
+    await session.generate_reply(instructions=INSTRUCTIONS)
+
+
+
+
+# Lancement de l’agent vocal (uniquement si le script est exécuté directement)
+if __name__ == "__main__":
+    agents.cli.run_app(agents.WorkerOptions(entrypoint_fnc=entrypoint))
