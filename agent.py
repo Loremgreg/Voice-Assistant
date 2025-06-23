@@ -1,3 +1,6 @@
+from dotenv import load_dotenv            
+
+from livekit import agents
 from livekit.agents import (
     AgentSession,
     Agent,
@@ -10,12 +13,10 @@ from livekit.plugins import (
     silero,
     noise_cancellation,
 )
-from livekit import agents
 
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 
 from prompts import INSTRUCTIONS   
-from dotenv import load_dotenv            
 
 load_dotenv()
 
@@ -44,15 +45,13 @@ async def entrypoint(ctx: agents.JobContext):
         agent=Assistant(),
         room_input_options=RoomInputOptions(
             # LiveKit Cloud enhanced noise cancellation
-            # - If self-hosting, omit this parameter
             # - For telephony applications, use `BVCTelephony` for best results
             noise_cancellation=noise_cancellation.BVC(), 
         ),
     )
-    
+
     await ctx.connect()
 
-    # Speak the predefined welcome message, then listen
     await session.generate_reply(instructions=INSTRUCTIONS)
 
 
