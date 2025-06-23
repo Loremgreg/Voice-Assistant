@@ -1,0 +1,30 @@
+# FAQ – Secrétariat IA pour cabinet de santé
+## Prise de rendez-vous
+- Les rendez-vous se réservent en ligne sur Doctolib ou par téléphone du lundi au vendredi de 8 h à 18 h.
+- Merci de vous munir de votre numéro de sécurité sociale pour toute première consultation.
+- Un SMS de rappel est envoyé 24 h avant la visite. Répondez “OUI” pour confirmer ou “NON” pour annuler.
+
+## Urgences
+- En cas de douleur aiguë ou de fièvre supérieure à 39 °C, appelez le 15 (SAMU) ou rendez-vous aux urgences les plus proches.
+- Le cabinet n’assure pas les gardes le week-end ; appelez le 116 117 pour joindre le médecin de garde.
+
+## Téléconsultation
+- Les téléconsultations se font via la plateforme sécurisée HELLODOC.
+- Vérifiez que votre webcam et votre microphone fonctionnent avant le rendez-vous.
+- Les ordonnances dématérialisées sont envoyées par e-mail immédiatement après la consultation.
+
+## Documents nécessaires
+1. Carte Vitale à jour
+2. Pièce d’identité (première visite)
+3. Liste des médicaments actuels
+4. Comptes rendus d’examens récents (prise de sang, imagerie)
+
+## Tarifs & Remboursement
+- Consultation générale : 25 € (tarif secteur 1, conventionné).
+- Carte bancaire, chèque et espèces acceptés. Pas de tiers payant sauf ALD et CMU.
+- Le remboursement par l’Assurance Maladie est de 70 % du tarif conventionné.
+
+## Contact
+- Téléphone : 01 23 45 67 89
+- E-mail : secretariat@mon-cabinet-medical.fr
+- Adresse : 12 rue de la Santé, 75000 Paris
