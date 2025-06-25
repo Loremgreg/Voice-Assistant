@@ -26,6 +26,9 @@ from livekit.plugins import (
 
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.core import Settings
+
 from prompts import INSTRUCTIONS   
 
 load_dotenv()
@@ -50,6 +53,10 @@ def prewarm(proc: JobProcess) -> None:
     """Load heavy resources once per process and store them in proc.userdata."""
     # Silero VAD weights (~15 MB) – loaded once, reused by all jobs in the process
     proc.userdata["vad"] = silero.VAD.load()
+    # Load the multilingual embedding model once per process
+    Settings.embed_model = HuggingFaceEmbedding(
+        model_name="BAAI/bge-m3"  # compact FR/EN/… embeddings
+    )
 # -----------------------------------------------------------------------
 
 from livekit.agents import llm
