@@ -13,7 +13,8 @@ from livekit import agents
 from livekit.agents import (
     AgentSession,
     Agent,
-    RoomInputOptions
+    RoomInputOptions,
+    JobProcess,            # ← new
 )
 from livekit.plugins import (
     elevenlabs,
@@ -39,10 +40,17 @@ if not PERSIST_DIR.exists():
     index = VectorStoreIndex.from_documents(documents)
     index.storage_context.persist(persist_dir=PERSIST_DIR)
 else:
-    # Re‑use the existing persisted index
+    # Redémarrage: Re‑use the existing persisted index
     storage_context = StorageContext.from_defaults(persist_dir=PERSIST_DIR)
     index = load_index_from_storage(storage_context)
 # ----------------------------------------------
+
+# -------------------- PREWARM (one‑time per process) --------------------
+def prewarm(proc: JobProcess) -> None:
+    """Load heavy resources once per process and store them in proc.userdata."""
+    # Silero VAD weights (~15 MB) – loaded once, reused by all jobs in the process
+    proc.userdata["vad"] = silero.VAD.load()
+# -----------------------------------------------------------------------
 
 from livekit.agents import llm
 
@@ -69,7 +77,7 @@ async def entrypoint(ctx: agents.JobContext):
             voice_id="FpvROcY4IGWevepmBWO2", 
             model="eleven_flash_v2_5",
         ),
-        vad=silero.VAD.load(),
+        vad=ctx.proc.userdata["vad"],
         turn_detection=MultilingualModel(),
     )
    
@@ -94,4 +102,10 @@ async def entrypoint(ctx: agents.JobContext):
 
 # Lancement de l’agent vocal (uniquement si le script est exécuté directement)
 if __name__ == "__main__":
-    agents.cli.run_app(agents.WorkerOptions(entrypoint_fnc=entrypoint))
+    agents.cli.run_app(
+        agents.WorkerOptions(
+            entrypoint_fnc=entrypoint,
+            prewarm_fnc=prewarm,        # use the pre‑loaded resources
+            num_idle_processes=2,       # keep 2 warm processes ready (optional)
+        )
+    )
