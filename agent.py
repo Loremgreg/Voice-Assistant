@@ -9,6 +9,8 @@ from llama_index.core import (
     load_index_from_storage,
 )
 
+from llama_index.core import Document
+
 from livekit import agents
 from livekit.agents import (
     AgentSession,
@@ -75,6 +77,25 @@ class Assistant(Agent):
             instructions=INSTRUCTIONS,
             tools=[query_info],              # expose RAG lookup to the LLM
         )
+
+
+    # --- Indexer chaque tour utilisateur -------------------------------
+    async def on_user_turn_completed(
+        self,
+        turn_ctx: ChatContext,
+        new_message,
+    ) -> None:
+        """
+        Quand l'utilisateur a terminé de parler, vectorise le texte et l'ajoute
+        à l'index afin que les prochaines requêtes puissent interroger l'historique.
+        """
+        # On ne stocke que les messages de l'utilisateur
+        if new_message.role == "user":
+            user_text = new_message.text_content()
+            if user_text:
+                # Crée un document LlamaIndex et l'insère dans l'index vectoriel
+                doc = Document(text=user_text)
+                index.insert(documents=[doc])
 
 
 async def entrypoint(ctx: agents.JobContext):
