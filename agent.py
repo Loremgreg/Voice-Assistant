@@ -34,17 +34,6 @@ from prompts import INSTRUCTIONS
 
 load_dotenv()
 
-# ----------- Chat context (system prompt) -----------
-BASE_CHAT_CTX = ChatContext().append(
-    role="system",
-    text=(
-        "Tu es le secrétaire IA du cabinet de kinésitherapie: réponds de façon concise, empathique, "
-        "et sans émojis. Utilise le vouvoiement et demande toujours si le patient "
-        "souhaite prendre rendez-vous."
-    ),
-)
-# ----------------------------------------------------
-
 # ---------- RAG index initialisation ----------
 THIS_DIR = Path(__file__).parent
 PERSIST_DIR = THIS_DIR / "query-engine-storage"
@@ -71,9 +60,9 @@ def prewarm(proc: JobProcess) -> None:
     )
 # -----------------------------------------------------------------------
 
-from livekit.agents import llm
+from livekit.agents.llm import function_tool
 
-@llm.function_tool
+@function_tool
 async def query_info(query: str) -> str:
     """Recherche d'information dans la base documentaire vectorielle."""
     query_engine = index.as_query_engine(use_async=True)
@@ -84,12 +73,14 @@ class Assistant(Agent):
     def __init__(self) -> None:
         super().__init__(
             instructions=INSTRUCTIONS,
-            chat_ctx=BASE_CHAT_CTX.copy(),   # provide fresh context per session
             tools=[query_info],              # expose RAG lookup to the LLM
         )
 
 
 async def entrypoint(ctx: agents.JobContext):
+    # Establish the connection first so ctx.room is populated
+    await ctx.connect()
+
     session = AgentSession(
         stt=deepgram.STT(model="nova-3", language="multi"),
         llm=openai.LLM(model="gpt-4o-mini"),
@@ -113,7 +104,6 @@ async def entrypoint(ctx: agents.JobContext):
         ),
     )
 
-    await ctx.connect()
 
     await session.generate_reply(instructions=INSTRUCTIONS)
 
