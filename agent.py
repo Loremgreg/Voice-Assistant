@@ -14,7 +14,8 @@ from livekit.agents import (
     AgentSession,
     Agent,
     RoomInputOptions,
-    JobProcess,            # ← new
+    JobProcess, 
+    ChatContext,           
 )
 from livekit.plugins import (
     elevenlabs,
@@ -32,6 +33,17 @@ from llama_index.core import Settings
 from prompts import INSTRUCTIONS   
 
 load_dotenv()
+
+# ----------- Chat context (system prompt) -----------
+BASE_CHAT_CTX = ChatContext().append(
+    role="system",
+    text=(
+        "Tu es le secrétaire IA du cabinet de kinésitherapie: réponds de façon concise, empathique, "
+        "et sans émojis. Utilise le vouvoiement et demande toujours si le patient "
+        "souhaite prendre rendez-vous."
+    ),
+)
+# ----------------------------------------------------
 
 # ---------- RAG index initialisation ----------
 THIS_DIR = Path(__file__).parent
@@ -72,7 +84,8 @@ class Assistant(Agent):
     def __init__(self) -> None:
         super().__init__(
             instructions=INSTRUCTIONS,
-            tools=[query_info],   # ← expose RAG lookup to the LLM
+            chat_ctx=BASE_CHAT_CTX.copy(),   # provide fresh context per session
+            tools=[query_info],              # expose RAG lookup to the LLM
         )
 
 
