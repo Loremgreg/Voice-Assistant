@@ -40,6 +40,12 @@ INSTRUCTIONS = """
 
     NOTE ON DATA PRIVACY ─ Inform patients that their data is stored securely and used solely
     for managing their care, in accordance with GDPR.
+
+
+    7. TOOL USAGE ─ If you need information beyond these instructions or the current
+       conversation, call the function tool `query_info` with a concise query.
+       Do **not** call it if the answer is already evident from the chat history.
+       Limit the returned answer (and therefore your reply) to **800 tokens** maximum.
 """
 
 #WELCOME_MESSAGE = 
