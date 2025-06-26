@@ -58,7 +58,7 @@ def prewarm(proc: JobProcess) -> None:
     proc.userdata["vad"] = silero.VAD.load()
     # Load the multilingual embedding model once per process
     Settings.embed_model = HuggingFaceEmbedding(
-        model_name="BAAI/bge-m3"  # compact FR/EN/… embeddings
+        model_name="BAAI/bge-m3"  # compact FR/EN/… embeddings #     model_name="sentence-transformers/all-MiniLM-L6-v2"  :  light EN‑friendly multilingual embeddings
     )
 # -----------------------------------------------------------------------
 
@@ -79,25 +79,6 @@ class Assistant(Agent):
         )
 
 
-    # --- Indexer chaque tour utilisateur -------------------------------
-    async def on_user_turn_completed(
-        self,
-        turn_ctx: ChatContext,
-        new_message,
-    ) -> None:
-        """
-        Quand l'utilisateur a terminé de parler, vectorise le texte et l'ajoute
-        à l'index afin que les prochaines requêtes puissent interroger l'historique.
-        """
-        # On ne stocke que les messages de l'utilisateur
-        if new_message.role == "user":
-            user_text = new_message.text_content()
-            if user_text:
-                # Crée un document LlamaIndex et l'insère dans l'index vectoriel
-                doc = Document(text=user_text)
-                index.insert(documents=[doc])
-
-
 async def entrypoint(ctx: agents.JobContext):
     # Establish the connection first so ctx.room is populated
     await ctx.connect()
@@ -106,14 +87,31 @@ async def entrypoint(ctx: agents.JobContext):
         stt=deepgram.STT(model="nova-3", language="multi"),
         llm=openai.LLM(model="gpt-4o-mini"),
         tts=elevenlabs.TTS(
-            voice_id="FpvROcY4IGWevepmBWO2", 
+            voice_id="FpvROcY4IGWevepmBWO2",
             model="eleven_flash_v2_5",
         ),
         vad=ctx.proc.userdata["vad"],
         turn_detection=MultilingualModel(),
     )
-   
 
+    # ------------------------------------------------------------------
+    # Indexer CHAQUE item réellement ajouté à l’historique
+    # ------------------------------------------------------------------
+    from livekit.agents import ConversationItemAddedEvent  # type: ignore
+
+    @session.on("conversation_item_added")
+    async def _index_history(ev: ConversationItemAddedEvent) -> None:  # noqa: N801
+        """
+        Callback déclenché dès qu'un message (user ou assistant) est
+        définitivement ajouté à l'historique LiveKit.
+        On indexe uniquement les messages utilisateur pour enrichir le RAG.
+        """
+        item = ev.item
+        if getattr(item, "role", None) == "user":
+            txt = item.text_content()
+            if txt:
+                index.insert(documents=[Document(text=txt)])
+                index.storage_context.persist(persist_dir=PERSIST_DIR)
 
     await session.start(
         room=ctx.room,
@@ -121,12 +119,9 @@ async def entrypoint(ctx: agents.JobContext):
         room_input_options=RoomInputOptions(
             # LiveKit Cloud enhanced noise cancellation
             # - For telephony applications, use `BVCTelephony` for best results
-            noise_cancellation=noise_cancellation.BVC(), 
+            noise_cancellation=noise_cancellation.BVC(),
         ),
     )
-
-
-    await session.generate_reply(instructions=INSTRUCTIONS)
 
 
 
