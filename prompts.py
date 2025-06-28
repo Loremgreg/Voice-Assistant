@@ -53,3 +53,30 @@ INSTRUCTIONS = """
     #Pour commencer, pourriez-vous me donner votre prénom et votre nom ?
     #Merci aussi de préciser si vous êtes un nouveau patient ou si vous avez déjà consulté chez nous.
     #Une fois ces informations recueillies, je répondrai volontiers à votre question.
+
+@function_tool
+def book_appointment(date: str, time: str) -> str:
+    """
+    Books an appointment for a patient.
+    """
+    # Logique réelle à implémenter plus tard (ex: appel à une API de calendrier)
+    print(f"LOGIQUE SIMULÉE: Réservation au {date} à {time}.")
+    return f"Rendez-vous confirmé pour le {date} à {time}."
+
+@function_tool
+def reschedule_appointment(old_date: str, new_date: str, new_time: str) -> str:
+    """
+    Reschedules an existing appointment.
+    """
+    # Logique réelle à implémenter plus tard
+    return f"Rendez-vous déplacé du {old_date} au {new_date} à {new_time}."
+
+@function_tool
+def cancel_appointment(date: str, time: str) -> str:
+    """
+    Cancels an appointment.
+    """
+    # Logique réelle à implémenter plus tard
+    return f"Le rendez-vous du {date} à {time} a bien été annulé."
+
+# (Je peux  en ajouter d'autres pour get_patient_info, etc.)

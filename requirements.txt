@@ -7,3 +7,20 @@ flask[async]
 flask
 flask-cors
 uvicorn
+
+python-dotenv
+
+# LiveKit 1.x
+livekit-agents[deepgram,openai,elevenlabs,silero,turn-detector]~=1.1
+# Si besoin : livekit-plugins-assemblyai~=1.1
+
+# LlamaIndex & embeddings
+llama-index==0.10.68
+llama-index-embeddings-huggingface
+sentence-transformers
+
+# (optionnel) Ollama local
+llama-index-llms-ollama
+
+# livekit V1
+pip install "livekit-agents[deepgram,openai,elevenlabs,silero,turn-detector]~=1.1"

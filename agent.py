@@ -1,3 +1,4 @@
+import traceback
 from dotenv import load_dotenv
 
 from pathlib import Path
@@ -32,7 +33,7 @@ from livekit.plugins.turn_detector.multilingual import MultilingualModel
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core import Settings
 
-from prompts import INSTRUCTIONS   
+from prompts import INSTRUCTIONS, book_appointment, reschedule_appointment, cancel_appointment  
 
 load_dotenv()
 
@@ -75,8 +76,13 @@ class Assistant(Agent):
     def __init__(self) -> None:
         super().__init__(
             instructions=INSTRUCTIONS,
-            tools=[query_info],              # expose RAG lookup to the LLM
-        )
+            tools=[
+                    query_info,
+                    book_appointment,
+                    reschedule_appointment,
+                    cancel_appointment
+                ],  # expose TOUS les outils au LLM
+            )
 
 
 async def entrypoint(ctx: agents.JobContext):
@@ -95,23 +101,23 @@ async def entrypoint(ctx: agents.JobContext):
     )
 
     # ------------------------------------------------------------------
-    # Indexer CHAQUE item réellement ajouté à l’historique
+    # Ne pas indexer l'historique de conversation pour la conformité RGPD
     # ------------------------------------------------------------------
+    # Laisser ce bloc vide empêche le stockage de données personnelles et de
+    # santé potentiellement sensibles dans l'index RAG. L'agent utilisera
+    # uniquement les documents statiques du dossier /docs pour ses recherches.
     from livekit.agents import ConversationItemAddedEvent  # type: ignore
 
     @session.on("conversation_item_added")
     async def _index_history(ev: ConversationItemAddedEvent) -> None:  # noqa: N801
-        """
-        Callback déclenché dès qu'un message (user ou assistant) est
-        définitivement ajouté à l'historique LiveKit.
-        On indexe uniquement les messages utilisateur pour enrichir le RAG.
-        """
-        item = ev.item
-        if getattr(item, "role", None) == "user":
-            txt = item.text_content()
-            if txt:
-                index.insert(documents=[Document(text=txt)])
-                index.storage_context.persist(persist_dir=PERSIST_DIR)
+        pass
+
+   await session.say(text="Bonjour ! Vous êtes en ligne avec l’assistant 
+     vocal de notre cabinet de kinésithérapie. Pour commencer, pourriez-vous me 
+     donner votre prénom et votre nom ? Merci aussi de préciser si vous êtes un 
+     nouveau patient ou si vous avez déjà consulté chez nous. Une fois ces 
+     informations recueillies, je répondrai volontiers à votre question.",
+     save_to_history=True)
 
     await session.start(
         room=ctx.room,
