@@ -59,7 +59,7 @@ def prewarm(proc: JobProcess) -> None:
     proc.userdata["vad"] = silero.VAD.load()
     # Load the multilingual embedding model once per process
     Settings.embed_model = HuggingFaceEmbedding(
-        model_name="BAAI/bge-m3"  # compact FR/EN/… embeddings #     model_name="sentence-transformers/all-MiniLM-L6-v2"  :  light EN‑friendly multilingual embeddings
+        model_name="sentence-transformers/all-MiniLM-L6-v2"  # léger, multilingue, idéal pour un POC
     )
 # -----------------------------------------------------------------------
 
