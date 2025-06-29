@@ -55,28 +55,33 @@ INSTRUCTIONS = """
     #Une fois ces informations recueillies, je répondrai volontiers à votre question.
 
 @function_tool
-def book_appointment(date: str, time: str) -> str:
+def book_appointment(details: str) -> str:
     """
-    Books an appointment for a patient.
+    Books an appointment based on a natural language query.
+    For example: "tomorrow at 2pm" or "July 2nd at 10:30".
     """
-    # Logique réelle à implémenter plus tard (ex: appel à une API de calendrier)
-    print(f"LOGIQUE SIMULÉE: Réservation au {date} à {time}.")
-    return f"Rendez-vous confirmé pour le {date} à {time}."
+    # La logique de l'analyse de 'details' sera ajoutée ici plus tard
+    print(f"LOGIQUE SIMULÉE: Réservation avec les détails : {details}.")
+    return f"Rendez-vous confirmé pour {details}."
 
 @function_tool
-def reschedule_appointment(old_date: str, new_date: str, new_time: str) -> str:
+def reschedule_appointment(old_details: str, new_details: str) -> str:
     """
-    Reschedules an existing appointment.
+    Reschedules an existing appointment based on a natural language query.
+    'old_details' is the original appointment and 'new_details' is the new one.
     """
-    # Logique réelle à implémenter plus tard
-    return f"Rendez-vous déplacé du {old_date} au {new_date} à {new_time}."
+    # La logique de l'analyse sera ajoutée ici plus tard
+    print(f"LOGIQUE SIMULÉE: Report du rdv de '{old_details}' à '{new_details}'.")
+    return f"Rendez-vous déplacé de {old_details} à {new_details}."
 
 @function_tool
-def cancel_appointment(date: str, time: str) -> str:
+def cancel_appointment(details: str) -> str:
     """
-    Cancels an appointment.
+    Cancels an appointment based on a natural language query.
+    For example: "the appointment for tomorrow at 2pm".
     """
-    # Logique réelle à implémenter plus tard
-    return f"Le rendez-vous du {date} à {time} a bien été annulé."
+    # La logique de l'analyse sera ajoutée ici plus tard
+    print(f"LOGIQUE SIMULÉE: Annulation du rdv : {details}.")
+    return f"Le rendez-vous pour {details} a bien été annulé."
 
 # (Je peux  en ajouter d'autres pour get_patient_info, etc.)
