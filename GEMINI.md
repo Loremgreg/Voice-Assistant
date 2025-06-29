@@ -19,7 +19,7 @@ Ce document fournit les instructions et le contexte nécessaires pour travailler
 - **STT (Transcription) :** Deepgram `nova-3` (multilingue)
 - **TTS (Voix) :** ElevenLabs `eleven_flash_v2_5`
 - **RAG (Base de connaissances) :** LlamaIndex
-- **Embeddings (pour RAG) :** HuggingFace `BAAI/bge-m3`
+- **Embeddings (pour RAG) :** HuggingFace `sentence-transformers/all-MiniLM-L6-v2`
 - **VAD (Détection de voix) :** Silero VAD
 
 ## 3. Conventions et Architecture
@@ -56,3 +56,6 @@ En cas de doute sur le fonctionnement de LiveKit Agents, se référer en priorit
 - **Données Externes & RAG :** [https://docs.livekit.io/agents/build/external-data/](https://docs.livekit.io/agents/build/external-data/)
 - **Événements & Erreurs :** [https://docs.livekit.io/agents/build/events/](https://docs.livekit.io/agents/build/events/)
 - **Cycle de vie du Worker :** [https://docs.livekit.io/agents/worker/](https://docs.livekit.io/agents/worker/)
+- **OpenAI LLM integration guide :**
+[https://docs.livekit.io/agents/integrations/llm/openai/]
+(https://docs.livekit.io/agents/integrations/llm/openai/)
