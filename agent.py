@@ -99,7 +99,10 @@ async def entrypoint(ctx: agents.JobContext):
 
     session = AgentSession(
         stt=deepgram.STT(model="nova-3", language="multi"),
-        llm=openai.LLM(model="gpt-4o-mini"),
+        llm=openai.LLM(
+            model="gpt-4o-mini",
+            temperature=0.2
+        ),
         tts=elevenlabs.TTS(
             voice_id="FpvROcY4IGWevepmBWO2",
             model="eleven_flash_v2_5",
