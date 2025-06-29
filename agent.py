@@ -84,6 +84,14 @@ class Assistant(Agent):
                 ],  # expose TOUS les outils au LLM
             )
 
+    async def on_enter(self):
+        await self.session.say("Bonjour ! Vous êtes en ligne avec l’assistant "
+                             "vocal de notre cabinet de kinésithérapie. Pour commencer, pourriez-vous me "
+                             "donner votre prénom et votre nom ? Merci aussi de préciser si vous êtes un "
+                             "nouveau patient ou si vous avez déjà consulté chez nous. Une fois ces "
+                             "informations recueillies, je répondrai volontiers à votre question.",
+                             allow_interruptions=False)
+
 
 async def entrypoint(ctx: agents.JobContext):
     # Establish the connection first so ctx.room is populated
@@ -109,16 +117,10 @@ async def entrypoint(ctx: agents.JobContext):
     from livekit.agents import ConversationItemAddedEvent  # type: ignore
 
     @session.on("conversation_item_added")
-    async def _index_history(ev: ConversationItemAddedEvent) -> None:  # noqa: N801
-        pass
+    def _index_history(ev: ConversationItemAddedEvent) -> None:  # noqa: N801 | This callback is intentionally left empty for GDPR compliance.
+        pass                                                           # It no longer needs to be async as it doesn't perform any awaitable operations.
 
-   await session.say(text="Bonjour ! Vous êtes en ligne avec l’assistant 
-     vocal de notre cabinet de kinésithérapie. Pour commencer, pourriez-vous me 
-     donner votre prénom et votre nom ? Merci aussi de préciser si vous êtes un 
-     nouveau patient ou si vous avez déjà consulté chez nous. Une fois ces 
-     informations recueillies, je répondrai volontiers à votre question.",
-     save_to_history=True)
-
+    # Start the session
     await session.start(
         room=ctx.room,
         agent=Assistant(),
