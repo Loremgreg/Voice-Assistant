@@ -56,6 +56,13 @@ En cas de doute sur le fonctionnement de LiveKit Agents, se référer en priorit
 - **Données Externes & RAG :** [https://docs.livekit.io/agents/build/external-data/](https://docs.livekit.io/agents/build/external-data/)
 - **Événements & Erreurs :** [https://docs.livekit.io/agents/build/events/](https://docs.livekit.io/agents/build/events/)
 - **Cycle de vie du Worker :** [https://docs.livekit.io/agents/worker/](https://docs.livekit.io/agents/worker/)
-- **OpenAI LLM integration guide :**
-[https://docs.livekit.io/agents/integrations/llm/openai/]
+- **OpenAI LLM integration guide :** [https://docs.livekit.io/agents/integrations/llm/openai/]
 (https://docs.livekit.io/agents/integrations/llm/openai/)
+
+## 6. Bonnes Pratiques et Leçons Apprises
+
+- **Démarrage de l'Agent :** Pour éviter les problèmes de téléchargement en parallèle, les modèles lourds (comme les embeddings) doivent être pré-téléchargés via un script séparé (`pre_download_models.py`) avant de lancer l'agent principal.
+- **Message de Bienvenue :** Pour qu'un agent parle en premier, il faut utiliser le hook `on_enter` dans la classe `Agent`. L'appel à `self.session.say()` doit se faire depuis cette méthode.
+- **Interruption de la Parole :** Pour les messages importants qui ne doivent pas être coupés (comme le message de bienvenue), il faut utiliser l'option `allow_interruptions=False` dans la méthode `self.session.say()`.
+- **Flexibilité des Outils :** Les fonctions `@function_tool` doivent être aussi flexibles que possible. Préférer un seul argument `details: str` qui accepte le langage naturel plutôt que de multiples arguments stricts (`date: str, time: str`) qui sont difficiles à extraire pour le LLM.
+- **Température du LLM :** Pour un agent qui doit être concis et suivre des instructions (et pour économiser des tokens), régler la `temperature` du LLM sur une valeur basse (ex: `0.2`) est une bonne pratique.
