@@ -63,11 +63,6 @@ INSTRUCTIONS = """
        If the answer can be given in a single sentence, do so.
 """
 
-#WELCOME_MESSAGE = 
-    #Bonjour ! Vous êtes en ligne avec l’assistant vocal de notre cabinet de kinésithérapie.
-    #Pour commencer, pourriez-vous me donner votre prénom et votre nom ?
-    #Merci aussi de préciser si vous êtes un nouveau patient ou si vous avez déjà consulté chez nous.
-    #Une fois ces informations recueillies, je répondrai volontiers à votre question.
 
 @function_tool
 async def query_info(query: str, query_engine: BaseQueryEngine) -> str:
