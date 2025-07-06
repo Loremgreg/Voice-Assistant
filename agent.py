@@ -87,14 +87,10 @@ class Assistant(Agent):
         ]  # expose TOUS les outils au LLM
 
     async def on_enter(self):
-        await self.session.say(
-            "Bonjour ! Vous êtes en ligne avec l’assistant "
-            "vocal de notre cabinet de kinésithérapie. Pour commencer, pourriez-vous me "
-            "donner votre prénom et votre nom ? Merci aussi de préciser si vous êtes un "
-            "nouveau patient ou si vous avez déjà consulté chez nous. Une fois ces "
-            "informations recueillies, je répondrai volontiers à votre question.",
-            allow_interruptions=False,
-        )
+        # Laisse le LLM commencer la conversation en se basant sur ses instructions.
+        # Le LLM utilisera le message de salutation défini dans prompts.py.
+        # "allow_interruptions=False" est conservé pour s'assurer que le message d'accueil n'est pas coupé.
+        await self.session.say(text="", allow_interruptions=False, flush=True)
 
 
 async def entrypoint(ctx: agents.JobContext):
