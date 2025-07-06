@@ -1,3 +1,4 @@
+import os
 import functools
 from dotenv import load_dotenv
 
@@ -101,7 +102,7 @@ async def entrypoint(ctx: agents.JobContext):
         stt=deepgram.STT(model="nova-3", language="multi"),
         llm=openai.LLM(model="gpt-4o-mini", temperature=0.2),
         tts=elevenlabs.TTS(
-            voice_id="FpvROcY4IGWevepmBWO2",
+            voice_id=os.environ.get("ELEVEN_VOICE_ID", "FpvROcY4IGWevepmBWO2"),
             model="eleven_flash_v2_5",
         ),
         vad=ctx.proc.userdata["vad"],
