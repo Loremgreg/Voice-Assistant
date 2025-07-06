@@ -1,4 +1,6 @@
 from livekit.agents.llm import function_tool
+from llama_index.core.query_engine import BaseQueryEngine
+
 
 INSTRUCTIONS = """
     You are the voice assistant for a physiotherapy clinic (“cabinet de kinésithérapie”).
@@ -66,6 +68,12 @@ INSTRUCTIONS = """
     #Pour commencer, pourriez-vous me donner votre prénom et votre nom ?
     #Merci aussi de préciser si vous êtes un nouveau patient ou si vous avez déjà consulté chez nous.
     #Une fois ces informations recueillies, je répondrai volontiers à votre question.
+
+@function_tool
+async def query_info(query: str, query_engine: BaseQueryEngine) -> str:
+    """Recherche d'information dans la base documentaire vectorielle."""
+    res = await query_engine.aquery(query)
+    return str(res)
 
 @function_tool
 def book_appointment(details: str) -> str:
