@@ -86,14 +86,14 @@ def book_appointment(details: str) -> str:
     return f"Rendez-vous confirmé pour {details}."
 
 @function_tool
-def reschedule_appointment(old_details: str, new_details: str) -> str:
+def reschedule_appointment(details: str) -> str:
     """
     Reschedules an existing appointment based on a natural language query.
-    'old_details' is the original appointment and 'new_details' is the new one.
+    For example: "reschedule my appointment from tomorrow at 2pm to next Friday at 4pm".
     """
-    # La logique de l'analyse sera ajoutée ici plus tard
-    print(f"LOGIQUE SIMULÉE: Report du rdv de '{old_details}' à '{new_details}'.")
-    return f"Rendez-vous déplacé de {old_details} à {new_details}."
+    # La logique de l'analyse de 'details' sera ajoutée ici plus tard
+    print(f"LOGIQUE SIMULÉE: Report de rdv avec les détails : {details}.")
+    return f"Demande de report pour {details} bien reçue. Nous allons la traiter."
 
 @function_tool
 def cancel_appointment(details: str) -> str:
