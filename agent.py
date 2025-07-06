@@ -1,4 +1,4 @@
-import traceback
+import functools
 from dotenv import load_dotenv
 
 from pathlib import Path
@@ -10,15 +10,12 @@ from llama_index.core import (
     load_index_from_storage,
 )
 
-from llama_index.core import Document
-
 from livekit import agents
 from livekit.agents import (
     AgentSession,
     Agent,
     RoomInputOptions,
-    JobProcess, 
-    ChatContext,           
+    JobProcess,          
 )
 from livekit.plugins import (
     elevenlabs,
@@ -33,7 +30,13 @@ from livekit.plugins.turn_detector.multilingual import MultilingualModel
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core import Settings
 
-from prompts import INSTRUCTIONS, book_appointment, reschedule_appointment, cancel_appointment  
+from prompts import (
+    INSTRUCTIONS,
+    query_info,
+    book_appointment,
+    reschedule_appointment,
+    cancel_appointment,
+)
 
 load_dotenv()
 
@@ -63,34 +66,35 @@ def prewarm(proc: JobProcess) -> None:
     )
 # -----------------------------------------------------------------------
 
-from livekit.agents.llm import function_tool
-
-@function_tool
-async def query_info(query: str) -> str:
-    """Recherche d'information dans la base documentaire vectorielle."""
-    query_engine = index.as_query_engine(use_async=True)
-    res = await query_engine.aquery(query)
-    return str(res)
-
 class Assistant(Agent):
     def __init__(self) -> None:
-        super().__init__(
-            instructions=INSTRUCTIONS,
-            tools=[
-                    query_info,
-                    book_appointment,
-                    reschedule_appointment,
-                    cancel_appointment
-                ],  # expose TOUS les outils au LLM
-            )
+        super().__init__(instructions=INSTRUCTIONS)
+
+        # Initialiser le query_engine une seule fois par session
+        self.query_engine = index.as_query_engine(use_async=True)
+
+        # Lier le query_engine à l'outil query_info
+        query_info_tool = functools.partial(query_info, query_engine=self.query_engine)
+        functools.update_wrapper(
+            query_info_tool, query_info
+        )  # Copie les métadonnées (docstring, etc.) pour le LLM
+
+        self.tools = [
+            query_info_tool,
+            book_appointment,
+            reschedule_appointment,
+            cancel_appointment,
+        ]  # expose TOUS les outils au LLM
 
     async def on_enter(self):
-        await self.session.say("Bonjour ! Vous êtes en ligne avec l’assistant "
-                             "vocal de notre cabinet de kinésithérapie. Pour commencer, pourriez-vous me "
-                             "donner votre prénom et votre nom ? Merci aussi de préciser si vous êtes un "
-                             "nouveau patient ou si vous avez déjà consulté chez nous. Une fois ces "
-                             "informations recueillies, je répondrai volontiers à votre question.",
-                             allow_interruptions=False)
+        await self.session.say(
+            "Bonjour ! Vous êtes en ligne avec l’assistant "
+            "vocal de notre cabinet de kinésithérapie. Pour commencer, pourriez-vous me "
+            "donner votre prénom et votre nom ? Merci aussi de préciser si vous êtes un "
+            "nouveau patient ou si vous avez déjà consulté chez nous. Une fois ces "
+            "informations recueillies, je répondrai volontiers à votre question.",
+            allow_interruptions=False,
+        )
 
 
 async def entrypoint(ctx: agents.JobContext):
@@ -99,10 +103,7 @@ async def entrypoint(ctx: agents.JobContext):
 
     session = AgentSession(
         stt=deepgram.STT(model="nova-3", language="multi"),
-        llm=openai.LLM(
-            model="gpt-4o-mini",
-            temperature=0.2
-        ),
+        llm=openai.LLM(model="gpt-4o-mini", temperature=0.2),
         tts=elevenlabs.TTS(
             voice_id="FpvROcY4IGWevepmBWO2",
             model="eleven_flash_v2_5",
@@ -120,8 +121,10 @@ async def entrypoint(ctx: agents.JobContext):
     from livekit.agents import ConversationItemAddedEvent  # type: ignore
 
     @session.on("conversation_item_added")
-    def _index_history(ev: ConversationItemAddedEvent) -> None:  # noqa: N801 | This callback is intentionally left empty for GDPR compliance.
-        pass                                                           # It no longer needs to be async as it doesn't perform any awaitable operations.
+    def _index_history(
+        ev: ConversationItemAddedEvent,
+    ) -> None:  # This callback is intentionally left empty for GDPR compliance.
+        pass  # It no longer needs to be async as it doesn't perform any awaitable operations.
 
     # Start the session
     await session.start(
@@ -135,14 +138,12 @@ async def entrypoint(ctx: agents.JobContext):
     )
 
 
-
-
 # Lancement de l’agent vocal (uniquement si le script est exécuté directement)
 if __name__ == "__main__":
     agents.cli.run_app(
         agents.WorkerOptions(
             entrypoint_fnc=entrypoint,
-            prewarm_fnc=prewarm,        # use the pre‑loaded resources
-            num_idle_processes=2,       # keep 2 warm processes ready (optional)
+            prewarm_fnc=prewarm,  # use the pre‑loaded resources
+            num_idle_processes=2,  # keep 2 warm processes ready (optional)
         )
     )
