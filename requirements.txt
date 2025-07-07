@@ -22,5 +22,10 @@ sentence-transformers
 # (optionnel) Ollama local
 llama-index-llms-ollama
 
+# Google Calendar API
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+
 # livekit V1
 pip install "livekit-agents[deepgram,openai,elevenlabs,silero,turn-detector]~=1.1"
