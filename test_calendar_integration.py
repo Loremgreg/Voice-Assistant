@@ -15,7 +15,7 @@ load_dotenv()
 
 # Importer le service calendar
 try:
-    from calendar_service import CalendarService
+    from calendar_service import GoogleCalendarService as CalendarService
 except ImportError as e:
     print(f"❌ Erreur d'import : {e}")
     print("Assurez-vous d'avoir installé les dépendances avec : pip install -r requirements.txt")
