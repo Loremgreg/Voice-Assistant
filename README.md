@@ -254,4 +254,4 @@ Pour toute question ou problème :
 
 ---
 
-**Fait avec ❤️ pour simplifier la gestion de calendrier par la voix**
+**Fait avec ❤️ pour simplifier la gestion de calendrier**

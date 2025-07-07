@@ -68,11 +68,7 @@ INSTRUCTIONS = """
 """
 
 
-@function_tool
-async def query_info(query: str, query_engine: BaseQueryEngine) -> str:
-    """Recherche d'information dans la base documentaire vectorielle."""
-    res = await query_engine.aquery(query)
-    return str(res)
+
 
 @function_tool
 async def book_appointment(details: str) -> str:

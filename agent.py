@@ -33,7 +33,6 @@ from llama_index.core import Settings
 
 from prompts import (
     INSTRUCTIONS,
-    query_info,
     book_appointment,
     reschedule_appointment,
     cancel_appointment,
@@ -59,39 +58,51 @@ else:
 # -------------------- PREWARM (one‑time per process) --------------------
 def prewarm(proc: JobProcess) -> None:
     """Load heavy resources once per process and store them in proc.userdata."""
-    # Silero VAD weights (~15 MB) – loaded once, reused by all jobs in the process
+    import gc
+
+    # Silero VAD weights (~15 MB) – loaded once, reused by all jobs in the process
     proc.userdata["vad"] = silero.VAD.load()
+
     # Load the multilingual embedding model once per process
+    # Utiliser un modèle encore plus léger si nécessaire
     Settings.embed_model = HuggingFaceEmbedding(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"  # léger, multilingue, idéal pour un POC
+        model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     )
+
+    # Force garbage collection
+    gc.collect()
 # -----------------------------------------------------------------------
+
+def create_query_info_tool(query_engine):
+    @agents.llm.function_tool
+    async def query_info(query: str) -> str:
+        """Recherche d'information dans la base documentaire vectorielle."""
+        res = await query_engine.aquery(query)
+        return str(res)
+    return query_info
 
 class Assistant(Agent):
     def __init__(self) -> None:
-        super().__init__(instructions=INSTRUCTIONS)
-
         # Initialiser le query_engine une seule fois par session
         self.query_engine = index.as_query_engine(use_async=True)
 
-        # Lier le query_engine à l'outil query_info
-        query_info_tool = functools.partial(query_info, query_engine=self.query_engine)
-        functools.update_wrapper(
-            query_info_tool, query_info
-        )  # Copie les métadonnées (docstring, etc.) pour le LLM
+        # Créer l'outil query_info avec le query_engine de la session
+        query_info_tool = create_query_info_tool(self.query_engine)
 
-        self.tools = [
+        tools = [
             query_info_tool,
             book_appointment,
             reschedule_appointment,
             cancel_appointment,
         ]  # expose TOUS les outils au LLM
 
+        super().__init__(instructions=INSTRUCTIONS, tools=tools)
+
     async def on_enter(self):
         # Laisse le LLM commencer la conversation en se basant sur ses instructions.
         # Le LLM utilisera le message de salutation défini dans prompts.py.
         # "allow_interruptions=False" est conservé pour s'assurer que le message d'accueil n'est pas coupé.
-        await self.session.say(text="", allow_interruptions=False, flush=True)
+        await self.session.say(text="", allow_interruptions=False)
 
 
 async def entrypoint(ctx: agents.JobContext):
@@ -141,6 +152,6 @@ if __name__ == "__main__":
         agents.WorkerOptions(
             entrypoint_fnc=entrypoint,
             prewarm_fnc=prewarm,  # use the pre‑loaded resources
-            num_idle_processes=2,  # keep 2 warm processes ready (optional)
+            num_idle_processes=1,  # Start with 1 process to avoid download race conditions
         )
     )

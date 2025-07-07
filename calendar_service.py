@@ -311,52 +311,30 @@ class GoogleCalendarService:
     
     def parse_datetime_from_text(self, text: str) -> Optional[datetime]:
         """
-        Parse une date/heure depuis du texte en français.
-        Version simple - peut être améliorée avec des bibliothèques comme dateparser.
+        Parse une date/heure depuis du texte en français en utilisant dateparser.
         
         Args:
-            text: Texte contenant la date/heure
+            text: Texte contenant la date/heure (ex: "demain à 15h", "le 25 décembre à 10h30")
         
         Returns:
             datetime object ou None si le parsing échoue
         """
-        import re
+        import dateparser
         
-        # Patterns simples pour les dates/heures courantes
-        patterns = {
-            r'demain (?:à )?(\d{1,2})h?(?:(\d{2}))?': lambda m: datetime.now().replace(
-                hour=int(m.group(1)), 
-                minute=int(m.group(2)) if m.group(2) else 0,
-                second=0, microsecond=0
-            ) + timedelta(days=1),
+        try:
+            # 'fr' indique à dateparser d'interpréter les dates en français
+            # PREFER_DATES_FROM: 'future' évite d'interpréter "samedi" comme le samedi passé
+            parsed_date = dateparser.parse(text, languages=['fr'], settings={'PREFER_DATES_FROM': 'future'})
             
-            r'aujourd\'?hui (?:à )?(\d{1,2})h?(?:(\d{2}))?': lambda m: datetime.now().replace(
-                hour=int(m.group(1)), 
-                minute=int(m.group(2)) if m.group(2) else 0,
-                second=0, microsecond=0
-            ),
-            
-            r'(\d{1,2})/(\d{1,2})/(\d{4}) (?:à )?(\d{1,2})h?(?:(\d{2}))?': lambda m: datetime(
-                year=int(m.group(3)),
-                month=int(m.group(2)),
-                day=int(m.group(1)),
-                hour=int(m.group(4)),
-                minute=int(m.group(5)) if m.group(5) else 0
-            )
-        }
-        
-        text_lower = text.lower()
-        
-        for pattern, parser in patterns.items():
-            match = re.search(pattern, text_lower)
-            if match:
-                try:
-                    return parser(match)
-                except (ValueError, OverflowError):
-                    continue
-        
-        logger.warning(f"Could not parse datetime from text: {text}")
-        return None
+            if parsed_date:
+                logger.info(f"Successfully parsed '{text}' to '{parsed_date}'")
+                return parsed_date
+            else:
+                logger.warning(f"Could not parse datetime from text: {text}")
+                return None
+        except Exception as e:
+            logger.error(f"Error parsing datetime with dateparser: {e}")
+            return None
 
 # Instance globale du service (singleton)
 _calendar_service = None
