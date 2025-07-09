@@ -232,25 +232,6 @@ logging.basicConfig(level=logging.DEBUG)
 - [`calendar_service.py`](calendar_service.py) : Documentation du service
 - [`prompts.py`](prompts.py) : Outils de l'agent vocal
 
-## 🤝 Contribution
-
-1. Fork le projet
-2. Créez une branche feature (`git checkout -b feature/nouvelle-fonctionnalite`)
-3. Committez vos changements (`git commit -am 'Ajout nouvelle fonctionnalité'`)
-4. Push vers la branche (`git push origin feature/nouvelle-fonctionnalite`)
-5. Créez une Pull Request
-
-## 📄 Licence
-
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
-
-## 🆘 Support
-
-Pour toute question ou problème :
-
-1. Consultez la section [Dépannage](#-dépannage)
-2. Vérifiez les [Issues GitHub](../../issues)
-3. Exécutez le script de test : `python test_calendar_integration.py`
 
 ---
 
